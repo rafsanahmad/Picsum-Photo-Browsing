@@ -1,7 +1,7 @@
 package com.rafsan.picsumphotoapp.ui.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.rafsan.picsumphotoapp.R
 import dagger.hilt.android.AndroidEntryPoint
 
