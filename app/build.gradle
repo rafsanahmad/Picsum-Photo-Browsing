@@ -19,9 +19,26 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            applicationIdSuffix ".dev"
+        }
         release {
             minifyEnabled false
+            debuggable false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions 'default'
+
+    productFlavors {
+        prod {
+            applicationId "com.rafsan.picsumphotoapp"
+        }
+        dev {
+            applicationId "com.rafsan.picsumphotoapp.dev"
         }
     }
 
