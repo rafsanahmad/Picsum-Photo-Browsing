@@ -4,9 +4,9 @@ import com.rafsan.picsumphotoapp.data.model.ImageList
 import retrofit2.Response
 import javax.inject.Inject
 
-class ApiHelperImpl @Inject constructor(private val imageApi: ImageApi) : ApiHelper {
+class ApiHelperImpl @Inject constructor(private val picsumApi: PicsumApi) : ApiHelper {
 
     override suspend fun getImages(pageNumber: Int): Response<ImageList> =
-        imageApi.getImages(pageNumber)
+        picsumApi.getImages(pageNumber)
 
 }
