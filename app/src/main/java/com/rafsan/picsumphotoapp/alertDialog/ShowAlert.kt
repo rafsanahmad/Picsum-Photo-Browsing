@@ -2,6 +2,7 @@ package com.rafsan.picsumphotoapp.alertDialog
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
+import com.rafsan.picsumphotoapp.R
 
 class ShowAlert {
     fun alertDialog(
@@ -12,14 +13,14 @@ class ShowAlert {
         negativeBtnText: String? = "",
         listener: DialogListener
     ) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.AlertDialogTheme)
         builder.setTitle(title)
             .setMessage(message)
-            .setPositiveButton(positiveBtnText) { dialog, id ->
+            .setPositiveButton(positiveBtnText) { dialog, _ ->
                 dialog.dismiss()
                 listener.onYesClicked("yes")
             }
-            .setNegativeButton(negativeBtnText) { dialog, id ->
+            .setNegativeButton(negativeBtnText) { dialog, _ ->
                 dialog.dismiss()
                 listener.onNoClicked(error = null)
             }
@@ -33,10 +34,10 @@ class ShowAlert {
         message: String,
         neutralBtnText: String
     ) {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context, R.style.AlertDialogTheme)
         builder.setTitle(title)
             .setMessage(message)
-            .setNeutralButton(neutralBtnText) { dialog, id ->
+            .setNeutralButton(neutralBtnText) { dialog, _ ->
                 dialog.dismiss()
             }
         builder.create().show()
