@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ItemImageBinding
+import com.rafsan.picsumphotoapp.di.GlideApp
 
 class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageAdapterViewHolder>() {
 
@@ -49,7 +49,7 @@ class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageAdapterViewHolder>()
     override fun onBindViewHolder(holder: ImageAdapterViewHolder, position: Int) {
         val item = differ.currentList[position]
         with(holder) {
-            Glide.with(itemView.context)
+            GlideApp.with(itemView.context)
                 .load(item.download_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .transition(withCrossFade())

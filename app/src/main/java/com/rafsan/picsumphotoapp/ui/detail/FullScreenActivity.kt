@@ -2,8 +2,6 @@ package com.rafsan.picsumphotoapp.ui.detail
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
@@ -14,15 +12,16 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NavUtils
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.alertDialog.DialogListener
 import com.rafsan.picsumphotoapp.alertDialog.ShowAlert
 import com.rafsan.picsumphotoapp.base.BaseActivity
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ActivityDetailBinding
+import com.rafsan.picsumphotoapp.di.GlideApp
 
 class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
@@ -56,7 +55,6 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
     //used to check if fab menu are opened or closed
     private var menuClosed = false
-    private lateinit var imgBitmap: Bitmap
 
     override fun onViewReady(savedInstanceState: Bundle?) {
         super.onViewReady(savedInstanceState)
@@ -70,23 +68,21 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     override fun setBinding(): ActivityDetailBinding = ActivityDetailBinding.inflate(layoutInflater)
 
     private fun setupUI(item: ImageListItem) {
-        with(binding) {
-            Glide.with(this@FullScreenActivity)
-                .asBitmap()
-                .load(item.download_url)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        imgBitmap = resource
-                        imageFullScreen.setImageBitmap(resource)
-                    }
+        val circularProgressDrawable = CircularProgressDrawable(this)
+        circularProgressDrawable.strokeWidth = 10f
+        circularProgressDrawable.centerRadius = 80f
+        circularProgressDrawable.colorFilter =
+            BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
+                R.color.colorPrimaryDark,
+                BlendModeCompat.SRC_ATOP
+            )
+        circularProgressDrawable.start()
 
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        // clear it here as you can no longer have the bitmap
-                    }
-                })
+        with(binding) {
+            GlideApp.with(this@FullScreenActivity)
+                .load(item.download_url)
+                .placeholder(circularProgressDrawable)
+                .into(imageFullScreen)
 
             fabOptions.setOnClickListener {
                 onOptionButtonClick()
