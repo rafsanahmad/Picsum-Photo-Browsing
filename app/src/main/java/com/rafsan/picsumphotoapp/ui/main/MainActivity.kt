@@ -1,5 +1,6 @@
 package com.rafsan.picsumphotoapp.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.rafsan.picsumphotoapp.base.BaseActivity
 import com.rafsan.picsumphotoapp.databinding.ActivityMainBinding
+import com.rafsan.picsumphotoapp.ui.detail.FullScreenActivity
 import com.rafsan.picsumphotoapp.ui.main.adapter.ImageAdapter
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.QUERY_PER_PAGE
 import com.rafsan.picsumphotoapp.utils.EndlessRecyclerOnScrollListener
@@ -64,7 +66,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
         imageAdapter.setOnItemClickListener { item ->
             //Navigate to detail
-
+            val intent = Intent(this@MainActivity, FullScreenActivity::class.java)
+            intent.putExtra("item", item)
+            startActivity(intent)
         }
     }
 

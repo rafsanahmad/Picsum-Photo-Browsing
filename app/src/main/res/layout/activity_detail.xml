@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.detail.DetailActivity">
+    tools:context=".ui.detail.FullScreenActivity">
 
     <ImageView
         android:id="@+id/image_full_screen"
