@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ItemImageBinding
@@ -48,7 +51,9 @@ class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageAdapterViewHolder>()
         with(holder) {
             Glide.with(itemView.context)
                 .load(item.download_url)
-                .dontTransform()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .transition(withCrossFade())
+                .downsample(DownsampleStrategy.AT_MOST)
                 .placeholder(R.drawable.placeholder)
                 .into(binding.imageItem)
         }
