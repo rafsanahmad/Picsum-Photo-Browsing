@@ -1,9 +1,12 @@
 package com.rafsan.picsumphotoapp.ui.detail
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
@@ -14,7 +17,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NavUtils
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.lifecycle.Observer
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.google.android.material.snackbar.Snackbar
 import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.alertDialog.DialogListener
 import com.rafsan.picsumphotoapp.alertDialog.ShowAlert
@@ -22,9 +27,14 @@ import com.rafsan.picsumphotoapp.base.BaseActivity
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ActivityDetailBinding
 import com.rafsan.picsumphotoapp.di.GlideApp
+import com.rafsan.picsumphotoapp.utils.FileUtils
+import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 
+@AndroidEntryPoint
 class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
+    private val TAG = "FullScreenActivity"
     private val REQUEST_CODE_ASK_PERMISSIONS = 1010
     private val fullScreenViewModel: FullScreenViewModel by viewModels()
 
@@ -55,32 +65,35 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
     //used to check if fab menu are opened or closed
     private var menuClosed = false
+    private lateinit var imageItem: ImageListItem
 
     override fun onViewReady(savedInstanceState: Bundle?) {
         super.onViewReady(savedInstanceState)
         val bundle = intent.extras
         if (bundle != null) {
             val item = bundle.getSerializable("item")
-            setupUI(item as ImageListItem)
+            imageItem = item as ImageListItem
+            setupUI()
+            setupObserver()
         }
     }
 
     override fun setBinding(): ActivityDetailBinding = ActivityDetailBinding.inflate(layoutInflater)
 
-    private fun setupUI(item: ImageListItem) {
+    private fun setupUI() {
         val circularProgressDrawable = CircularProgressDrawable(this)
         circularProgressDrawable.strokeWidth = 10f
         circularProgressDrawable.centerRadius = 80f
         circularProgressDrawable.colorFilter =
             BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-                R.color.colorPrimaryDark,
+                R.color.colorPrimary,
                 BlendModeCompat.SRC_ATOP
             )
         circularProgressDrawable.start()
 
         with(binding) {
             GlideApp.with(this@FullScreenActivity)
-                .load(item.download_url)
+                .load(imageItem.download_url)
                 .placeholder(circularProgressDrawable)
                 .into(imageFullScreen)
 
@@ -99,6 +112,29 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
+    private fun setupObserver() {
+        fullScreenViewModel.imageUri.observe(this, Observer { uri ->
+            if (!uri.path.isNullOrEmpty()) {
+                val snackBar =
+                    Snackbar.make(
+                        binding.rootLayout,
+                        getString(R.string.image_download_success),
+                        Snackbar.LENGTH_LONG
+                    )
+                snackBar.show()
+                openFile(uri)
+            }
+        })
+
+        fullScreenViewModel.errorToast.observe(this, Observer { value ->
+            if (value.isNotEmpty()) {
+                Toast.makeText(this@FullScreenActivity, value, Toast.LENGTH_LONG).show()
+            } else {
+                fullScreenViewModel.hideErrorToast()
+            }
+        })
+    }
+
     private fun handleDownload() {
         ShowAlert().alertDialog(this, "", getString(R.string.download_image),
             getString(R.string.yes), getString(R.string.no), object : DialogListener {
@@ -106,16 +142,13 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
                     checkPermission()
                 }
 
-                override fun onNoClicked(error: String?) {
-
-                }
-
+                override fun onNoClicked(error: String?) {}
             })
     }
 
     private fun checkPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            fullScreenViewModel.downloadImage()
+            fullScreenViewModel.downloadImage(imageItem)
         } else {
             val hasWriteStoragePermission =
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -128,7 +161,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
                     ShowAlert().alertDialog(
                         this,
                         "",
-                        "Storage permission is required to save image to phone. Allow permission?",
+                        getString(R.string.rationale),
                         getString(R.string.yes),
                         getString(R.string.no),
                         object : DialogListener {
@@ -151,9 +184,10 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
                         REQUEST_CODE_ASK_PERMISSIONS
                     )
                 }
+            } else {
+                //Permission granted
+                fullScreenViewModel.downloadImage(imageItem)
             }
-            //Permission granted
-            fullScreenViewModel.downloadImage()
         }
     }
 
@@ -191,6 +225,24 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
+    private fun openFile(uri: Uri) {
+        var file = File(uri.path)
+        val finalUri: Uri? = FileUtils().copyFileToDownloads(this, file)
+        finalUri?.let {
+            file = File(it.path)
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                // JPG file
+                intent.setDataAndType(it, "image/jpeg")
+                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                this.startActivity(intent)
+            } catch (e: Exception) {
+                Log.d(TAG, e.toString())
+            }
+        }
+    }
+
     private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
         ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
@@ -203,7 +255,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fullScreenViewModel.downloadImage()
+                fullScreenViewModel.downloadImage(imageItem)
             } else {
                 Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG)
                     .show()

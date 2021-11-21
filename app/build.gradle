@@ -21,12 +21,14 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            applicationIdSuffix ".dev"
+            applicationIdSuffix ".debug"
+            manifestPlaceholders = [authorities: "com.rafsan.picsumphotoapp.debug.fileprovider"]
         }
         release {
             minifyEnabled false
             debuggable false
             shrinkResources false
+            manifestPlaceholders = [authorities: "com.rafsan.picsumphotoapp.fileprovider"]
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

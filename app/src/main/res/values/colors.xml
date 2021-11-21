@@ -10,5 +10,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="teal_500">#0CAE9E</color>
     <color name="black">#FF000000</color>
+    <color name="black_back">#1E1D1D</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

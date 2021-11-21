@@ -7,4 +7,6 @@
     <string name="no">No</string>
     <string name="permission_denied">Permission Denied</string>
     <string name="ok">Ok</string>
+    <string name="rationale">Storage permission is required to save image to phone. Allow permission?</string>
+    <string name="image_download_success">Image Downloaded Successfully</string>
 </resources>
