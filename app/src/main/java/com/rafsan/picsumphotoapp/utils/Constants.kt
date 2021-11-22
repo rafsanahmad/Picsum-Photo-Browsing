@@ -12,9 +12,10 @@ class Constants {
 
         private fun getBaseUrlByProductFlavor(): String {
             if (BuildConfig.IS_PROD) {
-                //For prod
+                //For prod environment
                 return "https://picsum.photos/"
             } else {
+                //For Dev environment
                 return "https://picsum.photos/"
             }
         }
