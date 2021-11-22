@@ -33,14 +33,20 @@ android {
         }
     }
 
-    flavorDimensions 'default'
+    flavorDimensions 'version'
 
     productFlavors {
         prod {
-            applicationId "com.rafsan.picsumphotoapp"
+            dimension "version"
+            applicationIdSuffix ".prod"
+            versionNameSuffix "-prod"
+            buildConfigField 'boolean', 'IS_PROD', 'TRUE'
         }
         dev {
-            applicationId "com.rafsan.picsumphotoapp.dev"
+            dimension "version"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            buildConfigField 'boolean', 'IS_PROD', 'false'
         }
     }
 

@@ -15,6 +15,8 @@ import java.io.FileInputStream
 
 class FileUtils {
 
+    @Suppress("DEPRECATION")
+    //Used for Android version Less than Q
     private val DOWNLOAD_DIR =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 

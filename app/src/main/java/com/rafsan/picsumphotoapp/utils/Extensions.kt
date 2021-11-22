@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import com.rafsan.picsumphotoapp.PicsumPhotoApp
+import com.rafsan.picsumphotoapp.utils.Constants.Companion.IMAGE_QUALITY
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.TAG
 import java.io.File
 import java.io.FileOutputStream
@@ -40,7 +41,7 @@ fun Bitmap.saveToInternalStorage(): Uri? {
         val stream: OutputStream = FileOutputStream(file)
 
         // compress bitmap
-        compress(Bitmap.CompressFormat.JPEG, 80, stream)
+        compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, stream)
 
         // flush the stream
         stream.flush()

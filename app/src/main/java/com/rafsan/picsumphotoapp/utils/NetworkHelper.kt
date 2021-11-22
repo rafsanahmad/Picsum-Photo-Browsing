@@ -11,6 +11,7 @@ import javax.inject.Singleton
 @Singleton
 class NetworkHelper @Inject constructor(@ApplicationContext private val context: Context) {
 
+    @Suppress("DEPRECATION")
     fun isNetworkConnected(): Boolean {
         val result: Boolean
         val connectivityManager =
@@ -26,9 +27,8 @@ class NetworkHelper @Inject constructor(@ApplicationContext private val context:
                 else -> false
             }
         } else {
-            @Suppress("DEPRECATION") val networkInfo =
+            val networkInfo =
                 connectivityManager.activeNetworkInfo ?: return false
-            @Suppress("DEPRECATION")
             return networkInfo.isConnected
         }
 

@@ -169,8 +169,8 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         if (BuildConfig.DEBUG) {
             authority = "com.rafsan.picsumphotoapp.debug.fileprovider"
         }
-        downloadedFileUri?.let {
-            val file = File(it.path)
+        downloadedFileUri?.path?.let {
+            val file = File(it)
             val imageUri = FileProvider.getUriForFile(this, authority, file)
             val intent = Intent(Intent.ACTION_SEND)
             intent.type = "image/*"
@@ -261,19 +261,21 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     }
 
     private fun openImage(uri: Uri) {
-        var file = File(uri.path)
-        val finalUri: Uri? = FileUtils().copyFileToDownloads(this, file)
-        finalUri?.let {
-            file = File(it.path)
-            try {
-                val intent = Intent(Intent.ACTION_VIEW)
-                // JPG file
-                intent.setDataAndType(it, "image/jpeg")
-                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                this.startActivity(intent)
-            } catch (e: Exception) {
-                Log.d(TAG, e.toString())
+        uri.path?.let {
+            var file = File(it)
+            val finalUri: Uri? = FileUtils().copyFileToDownloads(this, file)
+            finalUri?.path?.let {
+                file = File(it)
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    // JPG file
+                    intent.setDataAndType(finalUri, "image/jpeg")
+                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    this.startActivity(intent)
+                } catch (e: Exception) {
+                    Log.d(TAG, e.toString())
+                }
             }
         }
     }
