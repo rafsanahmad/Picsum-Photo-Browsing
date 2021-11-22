@@ -62,6 +62,7 @@ class MainViewModel @Inject constructor(
             }
         } else {
             _errorToast.value = "No internet available"
+            getSavedImages()
         }
     }
 
@@ -74,6 +75,9 @@ class MainViewModel @Inject constructor(
                 imageListPage++
                 imageListResponse?.addAll(resultResponse)
             }
+            imageListResponse?.let {
+                saveResponseToCache(it)
+            }
             return NetworkResult.Success(imageListResponse ?: resultResponse)
         }
         return NetworkResult.Error("No data found")
@@ -81,6 +85,13 @@ class MainViewModel @Inject constructor(
 
     fun hideErrorToast() {
         _errorToast.value = ""
+    }
+
+    fun saveResponseToCache(imageListResponse: ImageList) {
+        for (i in 0 until imageListResponse.size) {
+            val item = imageListResponse[i]
+            saveImageItem(item)
+        }
     }
 
     fun saveImageItem(item: ImageListItem) {
@@ -92,14 +103,15 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getSavedImages() = repository.getSavedImagesList()
-
-    fun deleteImage(item: ImageListItem) {
+    fun getSavedImages() {
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
             onError(exception)
         }
         viewModelScope.launch(coroutinesDispatcherProvider.io + coroutineExceptionHandler) {
-            repository.deleteImage(item)
+            val imageList = ImageList()
+            val savedList = repository.getSavedImagesList()
+            imageList.addAll(savedList)
+            _imageResponse.postValue(NetworkResult.Success(imageList))
         }
     }
 

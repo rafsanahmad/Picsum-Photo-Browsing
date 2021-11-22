@@ -28,7 +28,7 @@ class ImageListRepository @Inject constructor(
 
     suspend fun saveImageItem(item: ImageListItem) = localDataSource.upsert(item)
 
-    fun getSavedImagesList() = localDataSource.getAllImages()
+    suspend fun getSavedImagesList() = localDataSource.getAllImages()
 
     suspend fun deleteImage(item: ImageListItem) = localDataSource.deleteImage(item)
 

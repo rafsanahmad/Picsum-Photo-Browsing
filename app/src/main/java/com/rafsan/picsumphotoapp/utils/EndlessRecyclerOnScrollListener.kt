@@ -36,7 +36,8 @@ abstract class EndlessRecyclerOnScrollListener(
                         null
                     )
                 // get maximum element within the list
-                firstVisibleItem = firstVisibleItemPositions[0]
+                firstVisibleItem = getFirstVisibleItem(firstVisibleItemPositions)
+                //firstVisibleItem = firstVisibleItemPositions[0]
             }
             is GridLayoutManager -> {
                 firstVisibleItem =
@@ -70,6 +71,18 @@ abstract class EndlessRecyclerOnScrollListener(
             isScrolling = false;
             onLoadMore()
         }
+    }
+
+    private fun getFirstVisibleItem(firstVisibleItemPositions: IntArray): Int {
+        var maxSize = 0
+        for (i in firstVisibleItemPositions.indices) {
+            if (i == 0) {
+                maxSize = firstVisibleItemPositions[i]
+            } else if (firstVisibleItemPositions[i] > maxSize) {
+                maxSize = firstVisibleItemPositions[i]
+            }
+        }
+        return maxSize
     }
 
     fun resetOnLoadMore() {

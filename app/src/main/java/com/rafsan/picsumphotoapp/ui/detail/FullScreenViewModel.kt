@@ -56,7 +56,7 @@ class FullScreenViewModel @Inject constructor(
                 // if downloaded then saved it to internal storage
                 bitmap?.apply {
                     // get saved bitmap internal storage uri
-                    val savedUri: Uri? = imageItem.id?.let { saveToInternalStorage(it) }
+                    val savedUri: Uri? = saveToInternalStorage(imageItem.id)
 
                     //update livedata
                     _imageUri.value = savedUri
