@@ -1,5 +1,6 @@
 package com.rafsan.picsumphotoapp.util
 
+import com.rafsan.picsumphotoapp.utils.CoroutinesDispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -33,3 +34,15 @@ fun MainCoroutineRule.runBlockingTest(block: suspend () -> Unit) =
     this.testDispatcher.runBlockingTest {
         block()
     }
+
+@ExperimentalCoroutinesApi
+fun provideFakeCoroutinesDispatcherProvider(
+    dispatcher: TestCoroutineDispatcher?
+): CoroutinesDispatcherProvider {
+    val sharedTestCoroutineDispatcher = TestCoroutineDispatcher()
+    return CoroutinesDispatcherProvider(
+        dispatcher ?: sharedTestCoroutineDispatcher,
+        dispatcher ?: sharedTestCoroutineDispatcher,
+        dispatcher ?: sharedTestCoroutineDispatcher
+    )
+}
