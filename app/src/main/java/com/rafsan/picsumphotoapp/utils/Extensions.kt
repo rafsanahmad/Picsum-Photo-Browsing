@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import com.rafsan.picsumphotoapp.PicsumPhotoApp
+import com.rafsan.picsumphotoapp.utils.Constants.Companion.TAG
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -18,7 +19,7 @@ fun URL.toBitmap(): Bitmap? {
     return try {
         BitmapFactory.decodeStream(openStream())
     } catch (e: IOException) {
-        Log.d("PicsumApp", e.toString())
+        Log.d(TAG, e.toString())
         return null
     }
 }
@@ -39,7 +40,7 @@ fun Bitmap.saveToInternalStorage(): Uri? {
         val stream: OutputStream = FileOutputStream(file)
 
         // compress bitmap
-        compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        compress(Bitmap.CompressFormat.JPEG, 80, stream)
 
         // flush the stream
         stream.flush()
@@ -51,7 +52,7 @@ fun Bitmap.saveToInternalStorage(): Uri? {
         Uri.parse(file.absolutePath)
     } catch (e: IOException) { // catch the exception
         e.printStackTrace()
-        Log.d("PicsumApp", e.toString())
+        Log.d(TAG, e.toString())
         null
     }
 }

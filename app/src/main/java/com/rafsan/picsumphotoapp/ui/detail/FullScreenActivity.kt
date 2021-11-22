@@ -15,11 +15,13 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NavUtils
+import androidx.core.content.FileProvider
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.lifecycle.Observer
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.android.material.snackbar.Snackbar
+import com.rafsan.picsumphotoapp.BuildConfig
 import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.alertDialog.DialogListener
 import com.rafsan.picsumphotoapp.alertDialog.ShowAlert
@@ -37,6 +39,9 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     private val TAG = "FullScreenActivity"
     private val REQUEST_CODE_ASK_PERMISSIONS = 1010
     private val fullScreenViewModel: FullScreenViewModel by viewModels()
+    private lateinit var imageItem: ImageListItem
+    private var downloadedFileUri: Uri? = null
+    private var shareImage = false
 
     private val rotateOpen: Animation by lazy {
         AnimationUtils.loadAnimation(
@@ -65,7 +70,6 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
     //used to check if fab menu are opened or closed
     private var menuClosed = false
-    private lateinit var imageItem: ImageListItem
 
     override fun onViewReady(savedInstanceState: Bundle?) {
         super.onViewReady(savedInstanceState)
@@ -103,7 +107,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
             //share fab button on click
             fabShare.setOnClickListener {
-
+                handleShare()
             }
             //download fab button on click
             fabDownload.setOnClickListener {
@@ -115,14 +119,19 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     private fun setupObserver() {
         fullScreenViewModel.imageUri.observe(this, Observer { uri ->
             if (!uri.path.isNullOrEmpty()) {
-                val snackBar =
-                    Snackbar.make(
-                        binding.rootLayout,
-                        getString(R.string.image_download_success),
-                        Snackbar.LENGTH_LONG
-                    )
-                snackBar.show()
-                openFile(uri)
+                downloadedFileUri = uri
+                if (!shareImage) {
+                    val snackBar =
+                        Snackbar.make(
+                            binding.rootLayout,
+                            getString(R.string.image_download_success),
+                            Snackbar.LENGTH_LONG
+                        )
+                    snackBar.show()
+                    openImage(uri)
+                } else {
+                    shareImage()
+                }
             }
         })
 
@@ -144,6 +153,32 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
                 override fun onNoClicked(error: String?) {}
             })
+    }
+
+    private fun handleShare() {
+        shareImage = true
+        if (downloadedFileUri == null) {
+            checkPermission()
+        } else {
+            shareImage()
+        }
+    }
+
+    private fun shareImage() {
+        var authority = "com.rafsan.picsumphotoapp.fileprovider"
+        if (BuildConfig.DEBUG) {
+            authority = "com.rafsan.picsumphotoapp.debug.fileprovider"
+        }
+        downloadedFileUri?.let {
+            val file = File(it.path)
+            val imageUri = FileProvider.getUriForFile(this, authority, file)
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "image/*"
+            intent.putExtra(Intent.EXTRA_STREAM, imageUri)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            startActivity(intent)
+            shareImage = false
+        }
     }
 
     private fun checkPermission() {
@@ -225,7 +260,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
-    private fun openFile(uri: Uri) {
+    private fun openImage(uri: Uri) {
         var file = File(uri.path)
         val finalUri: Uri? = FileUtils().copyFileToDownloads(this, file)
         finalUri?.let {

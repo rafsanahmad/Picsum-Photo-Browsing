@@ -11,6 +11,7 @@ import com.rafsan.picsumphotoapp.network.api.ApiHelperImpl
 import com.rafsan.picsumphotoapp.network.api.PicsumApi
 import com.rafsan.picsumphotoapp.network.repository.ImageListRepository
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.BASE_URL
+import com.rafsan.picsumphotoapp.utils.Constants.Companion.TAG
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,8 +26,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
-
-    private val TAG = "PicsumPhotoApp"
 
     @Provides
     @Singleton
