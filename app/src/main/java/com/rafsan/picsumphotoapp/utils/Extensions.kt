@@ -13,7 +13,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.net.URL
-import java.util.*
 
 // extension function to get / download bitmap from url
 fun URL.toBitmap(): Bitmap? {
@@ -26,34 +25,37 @@ fun URL.toBitmap(): Bitmap? {
 }
 
 // extension function to save an image to internal storage
-fun Bitmap.saveToInternalStorage(): Uri? {
+fun Bitmap.saveToInternalStorage(name: String): Uri? {
     val context = PicsumPhotoApp.applicationContext()
     // initializing a new file
     // bellow line return a directory in internal storage
-    val fileName = "${UUID.randomUUID()}.jpg"
+    val fileName = "${name}.jpg"
     val file = File(
         context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             .toString() + File.separator + fileName
     )
+    if (file.exists()) {
+        return Uri.parse(file.absolutePath)
+    } else {
+        return try {
+            // get the file output stream
+            val stream: OutputStream = FileOutputStream(file)
 
-    return try {
-        // get the file output stream
-        val stream: OutputStream = FileOutputStream(file)
+            // compress bitmap
+            compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, stream)
 
-        // compress bitmap
-        compress(Bitmap.CompressFormat.JPEG, IMAGE_QUALITY, stream)
+            // flush the stream
+            stream.flush()
 
-        // flush the stream
-        stream.flush()
+            // close stream
+            stream.close()
 
-        // close stream
-        stream.close()
-
-        // return the saved image uri
-        Uri.parse(file.absolutePath)
-    } catch (e: IOException) { // catch the exception
-        e.printStackTrace()
-        Log.d(TAG, e.toString())
-        null
+            // return the saved image uri
+            Uri.parse(file.absolutePath)
+        } catch (e: IOException) { // catch the exception
+            e.printStackTrace()
+            Log.d(TAG, e.toString())
+            null
+        }
     }
 }

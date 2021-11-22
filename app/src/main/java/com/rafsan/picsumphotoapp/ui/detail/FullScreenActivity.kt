@@ -18,7 +18,6 @@ import androidx.core.app.NavUtils
 import androidx.core.content.FileProvider
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
-import androidx.lifecycle.Observer
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.android.material.snackbar.Snackbar
 import com.rafsan.picsumphotoapp.BuildConfig
@@ -38,10 +37,8 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
     private val TAG = "FullScreenActivity"
     private val REQUEST_CODE_ASK_PERMISSIONS = 1010
-    private val fullScreenViewModel: FullScreenViewModel by viewModels()
+    private val VM: FullScreenViewModel by viewModels()
     private lateinit var imageItem: ImageListItem
-    private var downloadedFileUri: Uri? = null
-    private var shareImage = false
 
     private val rotateOpen: Animation by lazy {
         AnimationUtils.loadAnimation(
@@ -117,10 +114,11 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     }
 
     private fun setupObserver() {
-        fullScreenViewModel.imageUri.observe(this, Observer { uri ->
+        VM.imageUri.observe(this, { uri ->
             if (!uri.path.isNullOrEmpty()) {
-                downloadedFileUri = uri
-                if (!shareImage) {
+                hideProgressBar()
+                VM.downloadedFileUri = uri
+                if (!VM.shareImage) {
                     val snackBar =
                         Snackbar.make(
                             binding.rootLayout,
@@ -128,18 +126,23 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
                             Snackbar.LENGTH_LONG
                         )
                     snackBar.show()
-                    openImage(uri)
+                    openImage()
                 } else {
                     shareImage()
                 }
             }
         })
 
-        fullScreenViewModel.errorToast.observe(this, Observer { value ->
+        VM.showProgressBar.observe(this, { show ->
+            if (show) showProgressBar()
+            else hideProgressBar()
+        })
+
+        VM.errorToast.observe(this, { value ->
             if (value.isNotEmpty()) {
                 Toast.makeText(this@FullScreenActivity, value, Toast.LENGTH_LONG).show()
             } else {
-                fullScreenViewModel.hideErrorToast()
+                VM.hideErrorToast()
             }
         })
     }
@@ -156,8 +159,8 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     }
 
     private fun handleShare() {
-        shareImage = true
-        if (downloadedFileUri == null) {
+        VM.shareImage = true
+        if (VM.downloadedFileUri == null) {
             checkPermission()
         } else {
             shareImage()
@@ -169,7 +172,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         if (BuildConfig.DEBUG) {
             authority = "com.rafsan.picsumphotoapp.debug.fileprovider"
         }
-        downloadedFileUri?.path?.let {
+        VM.downloadedFileUri?.path?.let {
             val file = File(it)
             val imageUri = FileProvider.getUriForFile(this, authority, file)
             val intent = Intent(Intent.ACTION_SEND)
@@ -177,13 +180,13 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
             intent.putExtra(Intent.EXTRA_STREAM, imageUri)
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             startActivity(intent)
-            shareImage = false
+            VM.shareImage = false
         }
     }
 
     private fun checkPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            fullScreenViewModel.downloadImage(imageItem)
+            VM.downloadImage(imageItem)
         } else {
             val hasWriteStoragePermission =
                 checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -221,7 +224,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
                 }
             } else {
                 //Permission granted
-                fullScreenViewModel.downloadImage(imageItem)
+                VM.downloadImage(imageItem)
             }
         }
     }
@@ -229,7 +232,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
     private fun onOptionButtonClick() {
         setVisibility(menuClosed)
         setAnimation(menuClosed)
-        menuClosed = !menuClosed;
+        menuClosed = !menuClosed
     }
 
     // A Function used to set the Animation effect
@@ -260,12 +263,12 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
-    private fun openImage(uri: Uri) {
-        uri.path?.let {
+    private fun openImage() {
+        VM.downloadedFileUri?.path?.let {
             var file = File(it)
             val finalUri: Uri? = FileUtils().copyFileToDownloads(this, file)
-            finalUri?.path?.let {
-                file = File(it)
+            finalUri?.path?.let { path ->
+                file = File(path)
                 try {
                     val intent = Intent(Intent.ACTION_VIEW)
                     // JPG file
@@ -280,6 +283,14 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
+    private fun hideProgressBar() {
+        binding.progressBar.visibility = View.GONE
+    }
+
+    private fun showProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
     private fun requestPermission(permissionName: String, permissionRequestCode: Int) {
         ActivityCompat.requestPermissions(this, arrayOf(permissionName), permissionRequestCode)
     }
@@ -292,7 +303,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fullScreenViewModel.downloadImage(imageItem)
+                VM.downloadImage(imageItem)
             } else {
                 Toast.makeText(this, getString(R.string.permission_denied), Toast.LENGTH_LONG)
                     .show()

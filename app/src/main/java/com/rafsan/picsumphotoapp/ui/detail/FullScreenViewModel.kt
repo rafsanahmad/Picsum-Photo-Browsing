@@ -32,8 +32,17 @@ class FullScreenViewModel @Inject constructor(
     val imageUri: LiveData<Uri>
         get() = _imageUri
 
+    private val _showProgressbar = MutableLiveData<Boolean>()
+    val showProgressBar: LiveData<Boolean>
+        get() = _showProgressbar
+
+    var downloadedFileUri: Uri? = null
+    var shareImage = false
+
     fun downloadImage(imageItem: ImageListItem) {
         if (networkHelper.isNetworkConnected()) {
+            //Update progress bar live data
+            _showProgressbar.value = true
             // async task to get / download bitmap from url
             val urlImage: URL = URL(imageItem.download_url)
             val result: Deferred<Bitmap?> = viewModelScope.async(Dispatchers.IO) {
@@ -47,10 +56,11 @@ class FullScreenViewModel @Inject constructor(
                 // if downloaded then saved it to internal storage
                 bitmap?.apply {
                     // get saved bitmap internal storage uri
-                    val savedUri: Uri? = saveToInternalStorage()
+                    val savedUri: Uri? = imageItem.id?.let { saveToInternalStorage(it) }
 
                     //update livedata
                     _imageUri.value = savedUri
+                    _showProgressbar.value = false
                 }
             }
         } else {

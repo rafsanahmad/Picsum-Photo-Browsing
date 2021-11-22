@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminateOnly="true"
+        android:theme="@style/ProgressBarTheme"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -35,8 +36,10 @@
         android:clickable="true"
         android:focusable="true"
         android:tint="@android:color/white"
+        app:fabCustomSize="65dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:maxImageSize="35dp"
         app:srcCompat="@drawable/ic_baseline_settings_24"
         tools:ignore="VectorDrawableCompat" />
 
@@ -52,8 +55,10 @@
         android:focusable="true"
         android:tint="@color/white"
         android:visibility="invisible"
+        app:fabCustomSize="60dp"
         app:layout_constraintBottom_toTopOf="@+id/fab_options"
         app:layout_constraintEnd_toEndOf="@+id/fab_options"
+        app:maxImageSize="30dp"
         app:srcCompat="@drawable/ic_baseline_cloud_download_24" />
 
     <!--This act a child Floating Action Button-->
@@ -68,7 +73,9 @@
         android:focusable="true"
         android:tint="@color/white"
         android:visibility="invisible"
+        app:fabCustomSize="60dp"
         app:layout_constraintBottom_toTopOf="@+id/fab_download"
         app:layout_constraintEnd_toEndOf="@+id/fab_download"
+        app:maxImageSize="30dp"
         app:srcCompat="@drawable/ic_baseline_share_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>
