@@ -140,6 +140,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
         VM.errorToast.observe(this, { value ->
             if (value.isNotEmpty()) {
+                hideProgressBar()
                 Toast.makeText(this@FullScreenActivity, value, Toast.LENGTH_LONG).show()
             } else {
                 VM.hideErrorToast()

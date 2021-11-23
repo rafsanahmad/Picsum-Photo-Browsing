@@ -46,6 +46,10 @@ class MainViewModelTest {
 
     @Mock
     private lateinit var responseObserver: Observer<NetworkResult<ImageList>>
+
+    @Mock
+    private lateinit var responseError: Observer<String>
+
     private lateinit var viewModel: MainViewModel
 
     @Before
@@ -56,6 +60,8 @@ class MainViewModelTest {
             networkHelper = networkHelper,
             coroutinesDispatcherProvider = provideFakeCoroutinesDispatcherProvider(testDispatcher)
         )
+        responseObserver = Observer { }
+        responseError = Observer { }
     }
 
     @Test
@@ -155,9 +161,49 @@ class MainViewModelTest {
         }
     }
 
+    @Test
+    fun `when network not available load from cache`() {
+        coroutineRule.runBlockingTest {
+            whenever(networkHelper.isNetworkConnected())
+                .thenReturn(false)
+            viewModel.imageResponse.observeForever(responseObserver)
+
+            whenever(imageListRepo.getSavedImagesList())
+                .thenReturn(FakeDataUtil.getFakeImages())
+
+            //When
+            viewModel.fetchImages()
+
+            //then
+            assertThat(viewModel.imageResponse.value).isNotNull()
+            val images = viewModel.imageResponse.value?.data
+            assertThat(images?.isNotEmpty())
+            // compare the response with fake list
+            assertThat(images).hasSize(FakeDataUtil.getFakeImages().size)
+        }
+    }
+
+
+    @Test
+    fun `when network not available return error`() {
+        coroutineRule.runBlockingTest {
+            viewModel.errorToast.observeForever(responseError)
+            whenever(networkHelper.isNetworkConnected())
+                .thenReturn(false)
+
+            //When
+            viewModel.fetchImages()
+
+            //then
+            assertThat(viewModel.errorToast.value).isNotNull()
+            assertThat(viewModel.errorToast.value).isEqualTo("No internet available.")
+        }
+    }
+
     @After
     fun release() {
         Mockito.framework().clearInlineMocks()
         viewModel.imageResponse.removeObserver(responseObserver)
+        viewModel.errorToast.removeObserver(responseError)
     }
 }

@@ -7,12 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
+import com.rafsan.picsumphotoapp.utils.CoroutinesDispatcherProvider
 import com.rafsan.picsumphotoapp.utils.NetworkHelper
 import com.rafsan.picsumphotoapp.utils.saveToInternalStorage
 import com.rafsan.picsumphotoapp.utils.toBitmap
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.net.URL
@@ -20,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FullScreenViewModel @Inject constructor(
-    private val networkHelper: NetworkHelper
+    private val networkHelper: NetworkHelper,
+    private val coroutinesDispatcherProvider: CoroutinesDispatcherProvider
 ) : ViewModel() {
 
     private val TAG = "FullScreenViewModel"
@@ -45,11 +47,17 @@ class FullScreenViewModel @Inject constructor(
             _showProgressbar.value = true
             // async task to get / download bitmap from url
             val urlImage: URL = URL(imageItem.download_url)
-            val result: Deferred<Bitmap?> = viewModelScope.async(Dispatchers.IO) {
-                urlImage.toBitmap()
+
+            val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+                onError(exception)
             }
 
-            viewModelScope.launch(Dispatchers.Main) {
+            val result: Deferred<Bitmap?> =
+                viewModelScope.async(coroutinesDispatcherProvider.io + coroutineExceptionHandler) {
+                    urlImage.toBitmap()
+                }
+
+            viewModelScope.launch(coroutinesDispatcherProvider.main + coroutineExceptionHandler) {
                 // get the downloaded bitmap
                 val bitmap: Bitmap? = result.await()
 
@@ -64,11 +72,17 @@ class FullScreenViewModel @Inject constructor(
                 }
             }
         } else {
-            _errorToast.value = "No internet available"
+            _errorToast.value = "No internet available."
         }
     }
 
     fun hideErrorToast() {
         _errorToast.value = ""
+    }
+
+    private fun onError(throwable: Throwable) {
+        throwable.message?.let {
+            _errorToast.value = it
+        }
     }
 }

@@ -61,7 +61,7 @@ class MainViewModel @Inject constructor(
 
             }
         } else {
-            _errorToast.value = "No internet available"
+            _errorToast.value = "No internet available."
             getSavedImages()
         }
     }
@@ -130,6 +130,8 @@ class MainViewModel @Inject constructor(
     }
 
     private fun onError(throwable: Throwable) {
-        _errorToast.value = throwable.message
+        throwable.message?.let {
+            _errorToast.value = it
+        }
     }
 }
