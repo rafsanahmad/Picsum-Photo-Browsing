@@ -115,6 +115,15 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun deleteImageItem(item: ImageListItem) {
+        val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+            onError(exception)
+        }
+        viewModelScope.launch(coroutinesDispatcherProvider.io + coroutineExceptionHandler) {
+            repository.deleteImage(item)
+        }
+    }
+
     fun refresh() {
         imageListResponse = null
         imageListPage = 1
