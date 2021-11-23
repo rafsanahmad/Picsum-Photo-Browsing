@@ -109,7 +109,7 @@ class MainViewModelTest {
         coroutineRule.runBlockingTest {
             whenever(networkHelper.isNetworkConnected())
                 .thenReturn(true)
-            // Stub repository with fake favorites
+            // Stub repository with fake items
             whenever(imageListRepo.getImages(1))
                 .thenAnswer { NetworkResult.Error("Error occurred", null) }
 
@@ -120,6 +120,38 @@ class MainViewModelTest {
             val response = viewModel.imageResponse.value
             assertThat(response?.message).isNotNull()
             assertThat(response?.message).isEqualTo("Error occurred")
+        }
+    }
+
+    @Test
+    fun `test refresh list`() {
+        viewModel.refresh()
+        val response = viewModel.imageResponse.value
+        assertThat(response).isNull()
+        assertThat(viewModel.imageListPage).isEqualTo(1)
+    }
+
+    @Test
+    fun `test save Response To Cache`() {
+        coroutineRule.runBlockingTest {
+            val imageListResponse = FakeDataUtil.getFakeImagesResponse().data
+            imageListResponse?.let {
+                viewModel.imageResponse.observeForever(responseObserver)
+                viewModel.saveResponseToCache(it)
+
+                whenever(imageListRepo.getSavedImagesList())
+                    .thenReturn(it)
+
+                //When
+                viewModel.getSavedImages()
+
+                //then
+                assertThat(viewModel.imageResponse.value).isNotNull()
+                val images = viewModel.imageResponse.value?.data
+                assertThat(images?.isNotEmpty())
+                // compare the response with fake list
+                assertThat(images).hasSize(FakeDataUtil.getFakeImages().size)
+            }
         }
     }
 
