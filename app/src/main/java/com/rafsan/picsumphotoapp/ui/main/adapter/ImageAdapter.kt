@@ -49,6 +49,7 @@ class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageAdapterViewHolder>()
     override fun onBindViewHolder(holder: ImageAdapterViewHolder, position: Int) {
         val item = differ.currentList[position]
         with(holder) {
+            binding.imageItem.layout(0, 0, 0, 0)
             GlideApp.with(itemView.context)
                 .load(item.download_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

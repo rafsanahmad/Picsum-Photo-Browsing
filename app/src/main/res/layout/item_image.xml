@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
     android:elevation="0dp"
+    android:minHeight="80dp"
     app:cardCornerRadius="10dp">
 
     <ImageView

@@ -2,10 +2,11 @@ package com.rafsan.picsumphotoapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.rafsan.picsumphotoapp.base.BaseActivity
@@ -73,13 +74,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     private fun setupObservers() {
-        mainViewModel.imageResponse.observe(this, Observer { response ->
+        mainViewModel.imageResponse.observe(this, { response ->
             when (response) {
                 is NetworkResult.Success -> {
-                    hideProgressBar()
                     hideErrorMessage()
                     response.data?.let { images ->
                         imageAdapter.differ.submitList(images)
+                        imageAdapter.notifyDataSetChanged()
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            hideProgressBar()
+                        }, 1000)
                     }
                 }
 
@@ -96,7 +100,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             }
         })
 
-        mainViewModel.errorToast.observe(this, Observer { value ->
+        mainViewModel.errorToast.observe(this, { value ->
             if (value.isNotEmpty()) {
                 Toast.makeText(this@MainActivity, value, Toast.LENGTH_LONG).show()
             } else {
