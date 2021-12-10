@@ -2,8 +2,6 @@ package com.rafsan.picsumphotoapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -30,6 +28,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         setupUI()
         setupRecyclerView()
         setupObservers()
+
+        savedInstanceState?.let {
+            mainViewModel.hideErrorToast()
+        }
     }
 
     override fun setBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
@@ -78,12 +80,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             when (response) {
                 is NetworkResult.Success -> {
                     hideErrorMessage()
+                    hideProgressBar()
                     response.data?.let { images ->
                         imageAdapter.differ.submitList(images)
                         imageAdapter.notifyDataSetChanged()
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            hideProgressBar()
-                        }, 1000)
                     }
                 }
 
@@ -103,9 +103,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         mainViewModel.errorToast.observe(this, { value ->
             if (value.isNotEmpty()) {
                 Toast.makeText(this@MainActivity, value, Toast.LENGTH_LONG).show()
-            } else {
-                mainViewModel.hideErrorToast()
             }
+            mainViewModel.hideErrorToast()
         })
     }
 

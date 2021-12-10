@@ -61,7 +61,7 @@ class MainViewModel @Inject constructor(
 
             }
         } else {
-            _errorToast.value = "No internet available."
+            _errorToast.postValue("No internet available.")
             getSavedImages()
         }
     }
@@ -84,7 +84,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun hideErrorToast() {
-        _errorToast.value = ""
+        _errorToast.postValue("")
     }
 
     fun saveResponseToCache(imageListResponse: ImageList) {
@@ -131,7 +131,7 @@ class MainViewModel @Inject constructor(
 
     private fun onError(throwable: Throwable) {
         throwable.message?.let {
-            _errorToast.value = it
+            _errorToast.postValue(it)
         }
     }
 }
