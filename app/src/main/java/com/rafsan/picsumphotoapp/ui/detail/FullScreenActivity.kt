@@ -77,6 +77,9 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
             setupUI()
             setupObserver()
         }
+        savedInstanceState?.let {
+            VM.hideErrorToast()
+        }
     }
 
     override fun setBinding(): ActivityDetailBinding = ActivityDetailBinding.inflate(layoutInflater)
@@ -142,9 +145,8 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
             if (value.isNotEmpty()) {
                 hideProgressBar()
                 Toast.makeText(this@FullScreenActivity, value, Toast.LENGTH_LONG).show()
-            } else {
-                VM.hideErrorToast()
             }
+            VM.hideErrorToast()
         })
     }
 
@@ -161,11 +163,13 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding>() {
 
     private fun handleShare() {
         VM.shareImage = true
+        binding.fabShare.isEnabled = false
         if (VM.downloadedFileUri == null) {
             checkPermission()
         } else {
             shareImage()
         }
+        binding.fabShare.isEnabled = true
     }
 
     private fun shareImage() {

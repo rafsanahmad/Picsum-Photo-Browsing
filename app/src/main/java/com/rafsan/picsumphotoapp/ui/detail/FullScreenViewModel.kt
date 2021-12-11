@@ -72,17 +72,17 @@ class FullScreenViewModel @Inject constructor(
                 }
             }
         } else {
-            _errorToast.value = "No internet available."
+            _errorToast.postValue("No internet available.")
         }
     }
 
     fun hideErrorToast() {
-        _errorToast.value = ""
+        _errorToast.postValue("")
     }
 
     private fun onError(throwable: Throwable) {
         throwable.message?.let {
-            _errorToast.value = it
+            _errorToast.postValue(it)
         }
     }
 }
