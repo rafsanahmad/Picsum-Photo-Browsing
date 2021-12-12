@@ -2,14 +2,13 @@ package com.rafsan.picsumphotoapp.di
 
 import android.content.Context
 import android.util.Log
+import androidx.paging.ExperimentalPagingApi
 import com.google.gson.GsonBuilder
 import com.rafsan.picsumphotoapp.BuildConfig
-import com.rafsan.picsumphotoapp.data.local.ImageListDao
-import com.rafsan.picsumphotoapp.data.local.ImageListDb
-import com.rafsan.picsumphotoapp.network.api.ApiHelper
-import com.rafsan.picsumphotoapp.network.api.ApiHelperImpl
+import com.rafsan.picsumphotoapp.data.db.ImageListDb
+import com.rafsan.picsumphotoapp.data.db.dao.ImageListDao
 import com.rafsan.picsumphotoapp.network.api.PicsumApi
-import com.rafsan.picsumphotoapp.network.repository.ImageListRepository
+import com.rafsan.picsumphotoapp.network.repository.ImageListRepositoryImpl
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.BASE_URL
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.TAG
 import dagger.Module
@@ -25,6 +24,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
+@OptIn(ExperimentalPagingApi::class)
 object ApplicationModule {
 
     @Provides
@@ -59,13 +59,9 @@ object ApplicationModule {
     @Singleton
     fun providePicsumApi(retrofit: Retrofit): PicsumApi = retrofit.create(PicsumApi::class.java)
 
-    @Provides
-    @Singleton
-    fun provideApiHelper(apiHelper: ApiHelperImpl): ApiHelper = apiHelper
-
     @Singleton
     @Provides
-    fun provideDatabase(@ApplicationContext appContext: Context) =
+    fun provideImageListDb(@ApplicationContext appContext: Context) =
         ImageListDb.getDatabase(appContext)
 
     @Singleton
@@ -75,7 +71,8 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun provideRepository(
-        remoteDataSource: ApiHelper,
-        localDataSource: ImageListDao
-    ) = ImageListRepository(remoteDataSource, localDataSource)
+        picsumApi: PicsumApi,
+        localDataSource: ImageListDao,
+        imageListDb: ImageListDb
+    ) = ImageListRepositoryImpl(picsumApi, localDataSource, imageListDb)
 }
