@@ -1,6 +1,6 @@
 package com.rafsan.picsumphotoapp.network.api
 
-import com.rafsan.picsumphotoapp.data.model.ImageList
+import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.utils.Constants.Companion.QUERY_PER_PAGE
 import retrofit2.Response
 import retrofit2.http.GET
@@ -14,5 +14,5 @@ interface PicsumApi {
         pageNumber: Int = 1,
         @Query("limit")
         pageSize: Int = QUERY_PER_PAGE
-    ): Response<ImageList>
+    ): Response<List<ImageListItem>>
 }
