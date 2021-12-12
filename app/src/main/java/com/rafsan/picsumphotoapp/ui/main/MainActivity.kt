@@ -1,129 +1,95 @@
 package com.rafsan.picsumphotoapp.ui.main
 
 import android.content.Intent
-import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.rafsan.picsumphotoapp.base.BaseActivity
+import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ActivityMainBinding
+import com.rafsan.picsumphotoapp.databinding.ItemImageBinding
 import com.rafsan.picsumphotoapp.ui.detail.FullScreenActivity
 import com.rafsan.picsumphotoapp.ui.main.adapter.ImageAdapter
-import com.rafsan.picsumphotoapp.utils.Constants.Companion.QUERY_PER_PAGE
-import com.rafsan.picsumphotoapp.utils.EndlessRecyclerOnScrollListener
-import com.rafsan.picsumphotoapp.utils.NetworkResult
+import com.rafsan.picsumphotoapp.ui.main.adapter.PagingLoadStateAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding>() {
+@ExperimentalPagingApi
+class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(),
+    ImageAdapter.ImageItemClickListener {
 
     private val mainViewModel: MainViewModel by viewModels()
+
+    @Inject
     lateinit var imageAdapter: ImageAdapter
-    private lateinit var onScrollListener: EndlessRecyclerOnScrollListener
 
-    override fun onViewReady(savedInstanceState: Bundle?) {
-        super.onViewReady(savedInstanceState)
-        setupUI()
-        setupRecyclerView()
-        setupObservers()
+    override fun getVM(): MainViewModel = mainViewModel
 
-        savedInstanceState?.let {
-            mainViewModel.hideErrorToast()
+    override fun bindVM(binding: ActivityMainBinding, vm: MainViewModel) =
+        with(binding) {
+            val rLayoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            rLayoutManager.gapStrategy =
+                StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+            with(imageAdapter) {
+                rvImages.apply {
+                    postponeEnterTransition()
+                    viewTreeObserver.addOnPreDrawListener {
+                        startPostponedEnterTransition()
+                        true
+                    }
+                    layoutManager = rLayoutManager
+                }
+                rvImages.adapter = withLoadStateHeaderAndFooter(
+                    header = PagingLoadStateAdapter(this),
+                    footer = PagingLoadStateAdapter(this)
+                )
+
+                swipeRefreshLayout.setOnRefreshListener { refresh() }
+                imageClickListener = this@MainActivity
+
+                with(vm) {
+                    launchOnLifecycleScope {
+                        imageResponse.collectLatest { submitData(it) }
+                    }
+                    launchOnLifecycleScope {
+                        loadStateFlow.collectLatest {
+                            swipeRefreshLayout.isRefreshing = it.refresh is LoadState.Loading
+                        }
+                    }
+                }
+
+                launchOnLifecycleScope {
+                    imageAdapter.loadStateFlow.collect { loadState ->
+                        // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
+                        val errorState = loadState.source.append as? LoadState.Error
+                            ?: loadState.source.prepend as? LoadState.Error
+                            ?: loadState.append as? LoadState.Error
+                            ?: loadState.prepend as? LoadState.Error
+                            ?: loadState.source.refresh as? LoadState.Error
+                        errorState?.let {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "\uD83D\uDE28 Wooops ${it.error}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            }
         }
-    }
+
 
     override fun setBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
 
-    private fun setupUI() {
-        binding.itemErrorMessage.btnRetry.setOnClickListener {
-            mainViewModel.fetchImages()
-            hideErrorMessage()
-        }
-
-        // scroll listener for recycler view
-        onScrollListener = object : EndlessRecyclerOnScrollListener(QUERY_PER_PAGE) {
-            override fun onLoadMore() {
-                mainViewModel.fetchImages()
-            }
-        }
-        //Swipe refresh listener
-        val refreshListener = SwipeRefreshLayout.OnRefreshListener {
-            binding.swipeRefreshLayout.isRefreshing = false
-            mainViewModel.refresh()
-            mainViewModel.fetchImages()
-        }
-        binding.swipeRefreshLayout.setOnRefreshListener(refreshListener);
-    }
-
-    private fun setupRecyclerView() {
-        imageAdapter = ImageAdapter()
-        val rLayoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        rLayoutManager.gapStrategy =
-            StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-        binding.rvImages.apply {
-            adapter = imageAdapter
-            layoutManager = rLayoutManager
-            addOnScrollListener(onScrollListener)
-        }
-        imageAdapter.setOnItemClickListener { item ->
-            //Navigate to detail
-            val intent = Intent(this@MainActivity, FullScreenActivity::class.java)
-            intent.putExtra("item", item)
-            startActivity(intent)
-        }
-    }
-
-    private fun setupObservers() {
-        mainViewModel.imageResponse.observe(this, { response ->
-            when (response) {
-                is NetworkResult.Success -> {
-                    hideErrorMessage()
-                    hideProgressBar()
-                    response.data?.let { images ->
-                        imageAdapter.differ.submitList(images)
-                        imageAdapter.notifyDataSetChanged()
-                    }
-                }
-
-                is NetworkResult.Loading -> {
-                    showProgressBar()
-                }
-
-                is NetworkResult.Error -> {
-                    hideProgressBar()
-                    response.message?.let {
-                        showErrorMessage(it)
-                    }
-                }
-            }
-        })
-
-        mainViewModel.errorToast.observe(this, { value ->
-            if (value.isNotEmpty()) {
-                Toast.makeText(this@MainActivity, value, Toast.LENGTH_LONG).show()
-            }
-            mainViewModel.hideErrorToast()
-        })
-    }
-
-    private fun showProgressBar() {
-        binding.progressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgressBar() {
-        binding.progressBar.visibility = View.GONE
-    }
-
-    private fun showErrorMessage(message: String) {
-        binding.itemErrorMessage.errorCard.visibility = View.VISIBLE
-        binding.itemErrorMessage.tvErrorMessage.text = message
-        onScrollListener.isError = true
-    }
-
-    private fun hideErrorMessage() {
-        binding.itemErrorMessage.errorCard.visibility = View.GONE
-        onScrollListener.isError = false
+    override fun onImageClicked(binding: ItemImageBinding, item: ImageListItem) {
+        //Navigate to detail
+        val intent = Intent(this@MainActivity, FullScreenActivity::class.java)
+        intent.putExtra("item", item)
+        startActivity(intent)
     }
 }
