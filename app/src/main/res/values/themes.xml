@@ -29,7 +29,7 @@
     </style>
 
     <style name="ProgressBarTheme" parent="ThemeOverlay.AppCompat.Light">
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

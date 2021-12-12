@@ -7,11 +7,12 @@ import java.io.Serializable
 
 @Entity(tableName = "image_list")
 data class ImageListItem(
+    @PrimaryKey()
+    val id: String = "1",
     val author: String?,
     val download_url: String?,
     val height: Int?,
-    @PrimaryKey()
-    val id: String = "1",
     val url: String?,
-    val width: Int?
+    val width: Int?,
+    var page: Int?
 ) : Serializable
