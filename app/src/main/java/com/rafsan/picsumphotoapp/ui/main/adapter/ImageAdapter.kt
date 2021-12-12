@@ -2,7 +2,7 @@ package com.rafsan.picsumphotoapp.ui.main.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -12,63 +12,56 @@ import com.rafsan.picsumphotoapp.R
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
 import com.rafsan.picsumphotoapp.databinding.ItemImageBinding
 import com.rafsan.picsumphotoapp.di.GlideApp
+import javax.inject.Inject
 
-class ImageAdapter : RecyclerView.Adapter<ImageAdapter.ImageAdapterViewHolder>() {
+class ImageAdapter @Inject constructor() :
+    PagingDataAdapter<ImageListItem, ImageAdapter.ImageAdapterViewHolder>(ItemComparator) {
 
-    inner class ImageAdapterViewHolder(val binding: ItemImageBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    var imageClickListener: ImageItemClickListener? = null
 
-    private val differCallback = object : DiffUtil.ItemCallback<ImageListItem>() {
-        override fun areItemsTheSame(oldItem: ImageListItem, newItem: ImageListItem): Boolean {
-            return oldItem.url == newItem.url
-        }
-
-        override fun areContentsTheSame(oldItem: ImageListItem, newItem: ImageListItem): Boolean {
-            return oldItem == newItem
-        }
-    }
-
-    val differ = AsyncListDiffer(this, differCallback)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageAdapterViewHolder {
-        val binding =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ImageAdapterViewHolder(
             ItemImageBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
+                LayoutInflater.from(parent.context), parent, false
             )
-        return ImageAdapterViewHolder(binding)
-    }
-
-    override fun getItemCount(): Int {
-        return differ.currentList.size
-    }
-
-    private var onItemClickListener: ((ImageListItem) -> Unit)? = null
+        )
 
     override fun onBindViewHolder(holder: ImageAdapterViewHolder, position: Int) {
-        val item = differ.currentList[position]
-        with(holder) {
-            binding.imageItem.layout(0, 0, 0, 0)
+        getItem(position)?.let { holder.bind(it) }
+    }
+
+    inner class ImageAdapterViewHolder(private val binding: ItemImageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            itemView.setOnClickListener {
+                imageClickListener?.onImageClicked(
+                    binding,
+                    getItem(absoluteAdapterPosition) as ImageListItem
+                )
+            }
+        }
+
+        fun bind(item: ImageListItem) = with(binding) {
             GlideApp.with(itemView.context)
                 .load(item.download_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .transition(withCrossFade())
                 .downsample(DownsampleStrategy.AT_MOST)
                 .placeholder(R.drawable.placeholder)
-                .into(binding.imageItem)
-        }
-
-        holder.itemView.apply {
-            setOnClickListener {
-                onItemClickListener?.let {
-                    it(item)
-                }
-            }
+                .into(imageItem)
         }
     }
 
-    fun setOnItemClickListener(listener: (ImageListItem) -> Unit) {
-        onItemClickListener = listener
+    object ItemComparator : DiffUtil.ItemCallback<ImageListItem>() {
+        override fun areItemsTheSame(oldItem: ImageListItem, newItem: ImageListItem) =
+            oldItem.url == newItem.url
+
+        override fun areContentsTheSame(oldItem: ImageListItem, newItem: ImageListItem) =
+            oldItem == newItem
+    }
+
+    interface ImageItemClickListener {
+        fun onImageClicked(binding: ItemImageBinding, item: ImageListItem)
     }
 }
