@@ -17,7 +17,7 @@ class ImageListItemSerializableTest {
     fun test_item_is_serializable() {
         val imageItem = ImageListItem(
             id = "1", author = "author1", height = 100, width = 100, url = "https://abc.com",
-            download_url = "https://abc.com"
+            download_url = "https://abc.com", page = 1
         )
         val serializedBytes = ByteArrayOutputStream().use { byteArrayOutputStream ->
             ObjectOutputStream(byteArrayOutputStream).use {

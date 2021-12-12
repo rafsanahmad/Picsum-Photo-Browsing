@@ -16,11 +16,11 @@ object FakeDataUtil {
         val imageList: MutableList<ImageListItem> = arrayListOf()
         val image1 = ImageListItem(
             id = "1", author = "author1", height = 100, width = 100, url = "https://abc.com",
-            download_url = "https://picsum.photos/id/0/5616/3744"
+            download_url = "https://picsum.photos/id/0/5616/3744", page = 1
         )
         val image2 = ImageListItem(
             id = "2", author = "author2", height = 200, width = 200, url = "https://def.com",
-            download_url = "https://picsum.photos/id/1/5616/3744"
+            download_url = "https://picsum.photos/id/1/5616/3744", page = 1
         )
 
         imageList.add(image1)
@@ -31,7 +31,7 @@ object FakeDataUtil {
     fun getFakeImage(): ImageListItem {
         val image1 = ImageListItem(
             id = "1", author = "author1", height = 100, width = 100, url = "https://abc.com",
-            download_url = "https://abc.com"
+            download_url = "https://abc.com", page = 1
         )
         return image1
     }

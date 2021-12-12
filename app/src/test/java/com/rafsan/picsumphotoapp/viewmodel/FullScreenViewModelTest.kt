@@ -5,13 +5,13 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.whenever
+import com.rafsan.picsumphotoapp.ext.toBitmap
 import com.rafsan.picsumphotoapp.ui.detail.FullScreenViewModel
 import com.rafsan.picsumphotoapp.util.FakeDataUtil
 import com.rafsan.picsumphotoapp.util.MainCoroutineRule
 import com.rafsan.picsumphotoapp.util.provideFakeCoroutinesDispatcherProvider
 import com.rafsan.picsumphotoapp.util.runBlockingTest
 import com.rafsan.picsumphotoapp.utils.NetworkHelper
-import com.rafsan.picsumphotoapp.utils.toBitmap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.Before

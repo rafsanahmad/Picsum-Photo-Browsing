@@ -1,28 +1,19 @@
 package com.rafsan.picsumphotoapp.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
-import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.whenever
-import com.rafsan.picsumphotoapp.data.model.ImageList
+import androidx.paging.ExperimentalPagingApi
 import com.rafsan.picsumphotoapp.network.api.PicsumApi
-import com.rafsan.picsumphotoapp.network.repository.ImageListRepository
 import com.rafsan.picsumphotoapp.ui.main.MainViewModel
-import com.rafsan.picsumphotoapp.util.FakeDataUtil
 import com.rafsan.picsumphotoapp.util.MainCoroutineRule
-import com.rafsan.picsumphotoapp.util.provideFakeCoroutinesDispatcherProvider
-import com.rafsan.picsumphotoapp.util.runBlockingTest
-import com.rafsan.picsumphotoapp.utils.NetworkHelper
-import com.rafsan.picsumphotoapp.utils.NetworkResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 
+@ExperimentalPagingApi
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
     // Executes tasks in the Architecture Components in the same thread
@@ -36,174 +27,19 @@ class MainViewModelTest {
     @Mock
     private lateinit var picsumApi: PicsumApi
 
-    @Mock
-    private lateinit var networkHelper: NetworkHelper
-
-    @Mock
-    private lateinit var imageListRepo: ImageListRepository
-
     private val testDispatcher = coroutineRule.testDispatcher
 
-    @Mock
-    private lateinit var responseObserver: Observer<NetworkResult<ImageList>>
-
-    @Mock
-    private lateinit var responseError: Observer<String>
 
     private lateinit var viewModel: MainViewModel
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        viewModel = MainViewModel(
-            repository = imageListRepo,
-            networkHelper = networkHelper,
-            coroutinesDispatcherProvider = provideFakeCoroutinesDispatcherProvider(testDispatcher)
-        )
-        responseObserver = Observer { }
-        responseError = Observer { }
     }
 
-    @Test
-    fun `when calling for results then return loading`() {
-        coroutineRule.runBlockingTest {
-            whenever(networkHelper.isNetworkConnected())
-                .thenReturn(true)
-            viewModel.imageResponse.observeForever(responseObserver)
-            whenever(imageListRepo.getImages(1))
-                .thenReturn(NetworkResult.Loading())
-
-            //When
-            viewModel.fetchImages()
-
-            //Then
-            assertThat(viewModel.imageResponse.value).isNotNull()
-            assertThat(viewModel.imageResponse.value?.data).isNull()
-            assertThat(viewModel.imageResponse.value?.message).isNull()
-        }
-    }
-
-    @Test
-    fun `test if list is loaded with picsum response`() {
-        coroutineRule.runBlockingTest {
-            whenever(networkHelper.isNetworkConnected())
-                .thenReturn(true)
-
-            viewModel.imageResponse.observeForever(responseObserver)
-            // Stub repository with fake images
-            whenever(imageListRepo.getImages(1))
-                .thenAnswer { (FakeDataUtil.getFakeImagesResponse()) }
-
-            //When
-            viewModel.fetchImages()
-
-            //then
-            assertThat(viewModel.imageResponse.value).isNotNull()
-            val images = viewModel.imageResponse.value?.data
-            assertThat(images?.isNotEmpty())
-            // compare the response with fake list
-            assertThat(images).hasSize(FakeDataUtil.getFakeImages().size)
-            // compare the data and also order
-            assertThat(images).containsExactlyElementsIn(
-                FakeDataUtil.getFakeImages()
-            ).inOrder()
-        }
-    }
-
-    @Test
-    fun `test for failure`() {
-        coroutineRule.runBlockingTest {
-            whenever(networkHelper.isNetworkConnected())
-                .thenReturn(true)
-            // Stub repository with fake items
-            whenever(imageListRepo.getImages(1))
-                .thenAnswer { NetworkResult.Error("Error occurred", null) }
-
-            //When
-            viewModel.fetchImages()
-
-            //then
-            val response = viewModel.imageResponse.value
-            assertThat(response?.message).isNotNull()
-            assertThat(response?.message).isEqualTo("Error occurred")
-        }
-    }
-
-    @Test
-    fun `test refresh list`() {
-        viewModel.refresh()
-        val response = viewModel.imageResponse.value
-        assertThat(response).isNull()
-        assertThat(viewModel.imageListPage).isEqualTo(1)
-    }
-
-    @Test
-    fun `test save Response To Cache`() {
-        coroutineRule.runBlockingTest {
-            val imageListResponse = FakeDataUtil.getFakeImagesResponse().data
-            imageListResponse?.let {
-                viewModel.imageResponse.observeForever(responseObserver)
-                viewModel.saveResponseToCache(it)
-
-                whenever(imageListRepo.getSavedImagesList())
-                    .thenReturn(it)
-
-                //When
-                viewModel.getSavedImages()
-
-                //then
-                assertThat(viewModel.imageResponse.value).isNotNull()
-                val images = viewModel.imageResponse.value?.data
-                assertThat(images?.isNotEmpty())
-                // compare the response with fake list
-                assertThat(images).hasSize(FakeDataUtil.getFakeImages().size)
-            }
-        }
-    }
-
-    @Test
-    fun `when network not available load from cache`() {
-        coroutineRule.runBlockingTest {
-            whenever(networkHelper.isNetworkConnected())
-                .thenReturn(false)
-            viewModel.imageResponse.observeForever(responseObserver)
-
-            whenever(imageListRepo.getSavedImagesList())
-                .thenReturn(FakeDataUtil.getFakeImages())
-
-            //When
-            viewModel.fetchImages()
-
-            //then
-            assertThat(viewModel.imageResponse.value).isNotNull()
-            val images = viewModel.imageResponse.value?.data
-            assertThat(images?.isNotEmpty())
-            // compare the response with fake list
-            assertThat(images).hasSize(FakeDataUtil.getFakeImages().size)
-        }
-    }
-
-
-    @Test
-    fun `when network not available return error`() {
-        coroutineRule.runBlockingTest {
-            viewModel.errorToast.observeForever(responseError)
-            whenever(networkHelper.isNetworkConnected())
-                .thenReturn(false)
-
-            //When
-            viewModel.fetchImages()
-
-            //then
-            assertThat(viewModel.errorToast.value).isNotNull()
-            assertThat(viewModel.errorToast.value).isEqualTo("No internet available.")
-        }
-    }
 
     @After
     fun release() {
         Mockito.framework().clearInlineMocks()
-        viewModel.imageResponse.removeObserver(responseObserver)
-        viewModel.errorToast.removeObserver(responseError)
     }
 }
