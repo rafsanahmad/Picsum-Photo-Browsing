@@ -3,7 +3,7 @@
 ## Functionality
 The app's functionality includes:
 1. Fetch a list of images from picsum photos api (https://picsum.photos/) and show them in `RecyclerView` using `StaggeredGrid Layout Manager`.
-2. User can view the list of images using smooth infinite scroll.
+2. User can view the list of images using smooth infinite scroll using paging api.
 3. When an image is selected from `RecyclerView` it will load the full-screen image with pinch zoom in/out feature.
 4. User can download the image from full-screen view.
 5. User can share the image from full-screen view.
@@ -27,7 +27,7 @@ In addition, entity class has been added for room database.
 
 `MainViewModel.kt`
 
-Used for fetching picsum images & update livedata. Also send out the status of the network call like Loading, Success, Error using `sealed` class.
+Used for fetching picsum images & update flow using paging data soruce.
 
 `FullScreenViewModel.kt`
 
@@ -61,15 +61,16 @@ you can set the gradle jdk in `Preferences->Build Tools->Gradle->Gradle JDK`
 4. `Retrofit` for REST API communication
 5. `Coroutine` for Network call
 6. `Lifecycle`, `ViewModel`
-7. `LiveData`
+7.  Kotlin `Flow`
 8. `Room` for local database.
 9. `Glide` for image loading.
-10. `Custom fileprovider` for writing & reading files into internal storage.
-11. `Swipe Refresh Layout` for pull-to-refresh  `RecyclerView`.
-12. `Mockito` & `Junit` for Unit testing.
-13. `Robolectric` for Instrumentation testing
-14. `Truth` for Assertion in testing.
-15. `Photo View` for zoom in/out image.
+10. `Paging 3` with `RemoteMediator` for smooth infinite scroll.
+11. `Custom fileprovider` for writing & reading files into internal storage.
+12. `Swipe Refresh Layout` for pull-to-refresh  `RecyclerView`.
+13. `Mockito` & `Junit` for Unit testing.
+14. `Robolectric` for Instrumentation testing
+15. `Truth` for Assertion in testing.
+16. `Photo View` for zoom in/out image.
 
 ## Testing
 
@@ -77,7 +78,7 @@ Unit and integration testing has been added for `MainViewModel` , `FullScreenVie
 
 ### `MainViewModelTest.kt`
 
-Test the viewmodel of the app using `CoroutineRule` & `LiveData Observer`.
+Test the viewmodel of the app using `CoroutineRule`.
 
 The test cases comprise of testing different states like Loading, Success, Error with fake data for testing image list response, cache response.
 

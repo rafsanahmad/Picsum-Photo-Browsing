@@ -7,6 +7,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.13072916666666667" />
         <entry key="app/src/main/res/layout/item_error_message.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_image.xml" value="0.13072916666666667" />
+        <entry key="app/src/main/res/layout/item_network_state.xml" value="0.1933876811594203" />
         <entry key="app/src/main/res/xml/file_paths.xml" value="0.13072916666666667" />
       </map>
     </option>
