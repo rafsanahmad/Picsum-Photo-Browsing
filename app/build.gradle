@@ -58,6 +58,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 
     testOptions {
@@ -116,6 +117,9 @@ dependencies {
     //Glide
     implementation "com.github.bumptech.glide:glide:$rootProject.glideVersion"
     implementation "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
+
+    //Paging
+    implementation "androidx.paging:paging-runtime-ktx:$rootProject.pagingLibVersion"
 
     //idling resource
     implementation "androidx.test.espresso:espresso-idling-resource:$rootProject.espressoCore"

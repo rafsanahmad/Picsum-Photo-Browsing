@@ -36,6 +36,7 @@ buildscript {
         swpRefreshLayout = "1.1.0"
         glideVersion = "4.11.0"
         photoView = "2.0.0"
+        pagingLibVersion = "3.0.0-alpha13"
     }
     repositories {
         google()
