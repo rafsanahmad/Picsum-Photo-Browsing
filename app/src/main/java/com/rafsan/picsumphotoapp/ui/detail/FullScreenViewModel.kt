@@ -4,13 +4,13 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafsan.picsumphotoapp.base.BaseViewModel
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
+import com.rafsan.picsumphotoapp.ext.saveToInternalStorage
+import com.rafsan.picsumphotoapp.ext.toBitmap
 import com.rafsan.picsumphotoapp.utils.CoroutinesDispatcherProvider
 import com.rafsan.picsumphotoapp.utils.NetworkHelper
-import com.rafsan.picsumphotoapp.utils.saveToInternalStorage
-import com.rafsan.picsumphotoapp.utils.toBitmap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Deferred
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class FullScreenViewModel @Inject constructor(
     private val networkHelper: NetworkHelper,
     private val coroutinesDispatcherProvider: CoroutinesDispatcherProvider
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val TAG = "FullScreenViewModel"
     private val _errorToast = MutableLiveData<String>()
