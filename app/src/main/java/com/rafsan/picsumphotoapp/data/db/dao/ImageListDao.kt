@@ -19,6 +19,9 @@ interface ImageListDao {
     @Query("SELECT * FROM image_list")
     fun getAllImages(): PagingSource<Int, ImageListItem>
 
+    @Query("SELECT * FROM image_list")
+    fun getAllImagesList(): List<ImageListItem>
+
     @Query("Delete FROM image_list")
     suspend fun deleteAllImages()
 }

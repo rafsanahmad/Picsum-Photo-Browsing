@@ -33,7 +33,9 @@ class ImageListRepositoryImpl @Inject constructor(
 
     override suspend fun saveImageItem(item: ImageListItem) = localDataSource.upsert(item)
 
-    override suspend fun getSavedImagesList() = localDataSource.getAllImages()
+    override suspend fun getSavedImages() = localDataSource.getAllImages()
+
+    override suspend fun getSavedImagesList() = localDataSource.getAllImagesList()
 
     override
     suspend fun deleteAllImages() = localDataSource.deleteAllImages()
