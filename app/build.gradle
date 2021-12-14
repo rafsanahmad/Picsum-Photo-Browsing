@@ -138,6 +138,7 @@ dependencies {
     testImplementation "com.google.truth:truth:$rootProject.truthVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$rootProject.mockWebserver"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$rootProject.coroutineTestVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$rootProject.kotlinVersion"
     androidTestImplementation "androidx.arch.core:core-testing:$rootProject.archCoreTest"
     androidTestImplementation "androidx.test.ext:junit:$rootProject.jUnitVersion"
     androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
