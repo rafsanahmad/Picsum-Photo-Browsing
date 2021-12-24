@@ -54,23 +54,23 @@ Gradle plugin used in the project will require `Java 11.0` to run.
 
 you can set the gradle jdk in `Preferences->Build Tools->Gradle->Gradle JDK`
 
-## Libraries used
-1.  Android appcompat, core, constraint layout, Material Support.
-2.  Android View Binding
-3. `Hilt` for dependency injection
-4. `Retrofit` for REST API communication
-5. `Coroutine` for Network call
-6. `Lifecycle`, `ViewModel`
-7.  Kotlin `Flow`
-8. `Room` for local database.
-9. `Glide` for image loading.
-10. `Paging 3` with `RemoteMediator` for smooth infinite scroll.
-11. `Custom fileprovider` for writing & reading files into internal storage.
-12. `Swipe Refresh Layout` for pull-to-refresh  `RecyclerView`.
-13. `Mockito` & `Junit` for Unit testing.
-14. `Robolectric` for Instrumentation testing
-15. `Truth` for Assertion in testing.
-16. `Photo View` for zoom in/out image.
+## Tech Stack
+1. [Android appcompat](https://developer.android.com/jetpack/androidx/releases/appcompat), [KTX](https://developer.android.com/kotlin/ktx), [Constraint layout](https://developer.android.com/reference/androidx/constraintlayout/widget/ConstraintLayout), [Material Support](https://material.io/develop/android/docs/getting-started).
+2.  [Android View Binding](https://developer.android.com/topic/libraries/view-binding)
+3. [Hilt](https://developer.android.com/training/dependency-injection/hilt-android) for dependency injection.
+4. [Retrofit](https://square.github.io/retrofit/) for REST API communication.
+5. [Coroutine](https://developer.android.com/kotlin/coroutines) for Network call.
+6. [Lifecycle](https://developer.android.com/jetpack/androidx/releases/lifecycle), [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
+7.  Kotlin [Flow](https://developer.android.com/kotlin/flow)
+8. [Room](https://developer.android.com/jetpack/androidx/releases/room) for local database.
+9. [Glide](https://github.com/bumptech/glide) for image loading.
+10. [Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) with [RemoteMediator](https://developer.android.com/topic/libraries/architecture/paging/v3-network-db) for smooth infinite scroll.
+11. [Custom fileprovider](https://developer.android.com/training/secure-file-sharing/setup-sharing) for writing & reading files into internal storage.
+12. [Swipe Refresh Layout](https://developer.android.com/jetpack/androidx/releases/swiperefreshlayout) for pull-to-refresh `RecyclerView`.
+13. [Mockito](https://developer.android.com/training/testing/local-tests) & [Junit](https://developer.android.com/training/testing/local-tests) for Unit testing.
+14. [Robolectric](http://robolectric.org/) for Instrumentation testing.
+15. [Truth](https://truth.dev/) for Assertion in testing.
+16. [Photo View](https://github.com/Baseflow/PhotoView) for zoom in/out image.
 
 ## Testing
 
