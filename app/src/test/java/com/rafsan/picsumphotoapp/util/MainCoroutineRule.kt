@@ -1,6 +1,6 @@
 package com.rafsan.picsumphotoapp.util
 
-import com.rafsan.picsumphotoapp.utils.CoroutinesDispatcherProvider
+import com.rafsan.picsumphotoapp.di.CoroutinesDispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*

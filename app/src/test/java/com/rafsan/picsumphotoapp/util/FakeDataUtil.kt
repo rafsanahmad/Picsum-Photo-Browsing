@@ -33,10 +33,9 @@ object FakeDataUtil {
     }
 
     fun getFakeImage(id: String = "1"): ImageListItem {
-        val image1 = ImageListItem(
+        return ImageListItem(
             id = id, author = "author1", height = 100, width = 100, url = "https://abc.com",
             download_url = "https://abc.com", page = 1
         )
-        return image1
     }
 }

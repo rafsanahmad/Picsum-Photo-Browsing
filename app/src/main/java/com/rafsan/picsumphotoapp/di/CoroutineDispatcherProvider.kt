@@ -1,4 +1,4 @@
-package com.rafsan.picsumphotoapp.utils
+package com.rafsan.picsumphotoapp.di
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

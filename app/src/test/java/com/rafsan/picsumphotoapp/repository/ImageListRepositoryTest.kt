@@ -80,8 +80,8 @@ class ImageListRepositoryTest : MockWebServerBaseTest() {
             imageListRepo.saveImageItem(fakeImage)
             val savedImages = imageListRepo.getSavedImagesList()
             assertThat(savedImages.isNotEmpty()).isTrue()
-            assertThat(savedImages.get(0).id == fakeImage.id).isTrue()
-            assertThat(savedImages.get(0).url == fakeImage.url).isTrue()
+            assertThat(savedImages[0].id == fakeImage.id).isTrue()
+            assertThat(savedImages[0].url == fakeImage.url).isTrue()
         }
     }
 

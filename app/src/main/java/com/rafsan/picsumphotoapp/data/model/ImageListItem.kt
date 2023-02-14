@@ -7,7 +7,7 @@ import java.io.Serializable
 
 @Entity(tableName = "image_list")
 data class ImageListItem(
-    @PrimaryKey()
+    @PrimaryKey
     val id: String = "1",
     val author: String?,
     val download_url: String?,

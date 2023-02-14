@@ -123,7 +123,7 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding, FullScreenViewMod
     private fun setupObserver() {
         val context = this
         with(viewModel) {
-            imageUri.observe(context, { uri ->
+            imageUri.observe(context) { uri ->
                 if (!uri.path.isNullOrEmpty()) {
                     hideProgressBar()
                     downloadedFileUri = uri
@@ -140,20 +140,20 @@ class FullScreenActivity : BaseActivity<ActivityDetailBinding, FullScreenViewMod
                         shareImage()
                     }
                 }
-            })
+            }
 
-            showProgressBar.observe(context, { show ->
+            showProgressBar.observe(context) { show ->
                 if (show) showProgressBar()
                 else hideProgressBar()
-            })
+            }
 
-            errorToast.observe(context, { value ->
+            errorToast.observe(context) { value ->
                 if (value.isNotEmpty()) {
                     hideProgressBar()
                     Toast.makeText(this@FullScreenActivity, value, Toast.LENGTH_LONG).show()
                 }
                 hideErrorToast()
-            })
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 @file:JvmName("Log")
 
-package com.rafsan.newsapp.util
+package com.rafsan.picsumphotoapp.util
 
 fun d(tag: String, msg: String): Int {
     println("DEBUG: $tag: $msg")
