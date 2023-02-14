@@ -53,9 +53,8 @@ class ImageListRemoteMediator(val service: PicsumApi, val db: ImageListDb) :
         try {
             val apiResponse = service.getImages(page)
             val resBody = apiResponse.body()
-            val images = resBody
             var endOfPaginationReached = false
-            images?.let {
+            resBody?.let {
                 endOfPaginationReached = it.isEmpty()
             }
             db.withTransaction {
@@ -66,14 +65,14 @@ class ImageListRemoteMediator(val service: PicsumApi, val db: ImageListDb) :
                 }
                 val prevKey = if (page == DEFAULT_PAGE_INDEX) null else page - 1
                 val nextKey = if (endOfPaginationReached) null else page + 1
-                val keys = images?.map {
+                val keys = resBody?.map {
                     PageKey(id = it.id, prevKey = prevKey, nextKey = nextKey)
                 }
                 if (keys != null) {
                     pageKeyDao.insertAll(keys)
                 }
-                if (images != null) {
-                    imageListDao.insertAll(images)
+                if (resBody != null) {
+                    imageListDao.insertAll(resBody)
                 }
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
@@ -85,7 +84,7 @@ class ImageListRemoteMediator(val service: PicsumApi, val db: ImageListDb) :
     private suspend fun getRemoteKeyForLastItem(state: PagingState<Int, ImageListItem>): PageKey? {
         // Get the last page that was retrieved, that contained items.
         // From that last page, get the last item
-        return state.pages.lastOrNull() { it.data.isNotEmpty() }?.data?.lastOrNull()
+        return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
             ?.let { item ->
                 // Get the remote keys of the last item retrieved
                 pageKeyDao.getNextPageKey(item.id)

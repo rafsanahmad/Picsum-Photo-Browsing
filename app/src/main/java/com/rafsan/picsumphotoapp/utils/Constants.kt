@@ -13,12 +13,12 @@ class Constants {
         const val IMAGE_QUALITY = 80
 
         private fun getBaseUrlByProductFlavor(): String {
-            if (BuildConfig.IS_PROD) {
+            return if (BuildConfig.IS_PROD) {
                 //For prod environment
-                return "https://picsum.photos/"
+                "https://picsum.photos/"
             } else {
                 //For Dev environment
-                return "https://picsum.photos/"
+                "https://picsum.photos/"
             }
         }
     }

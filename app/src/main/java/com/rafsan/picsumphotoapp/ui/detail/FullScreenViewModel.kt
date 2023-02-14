@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.rafsan.picsumphotoapp.base.BaseViewModel
 import com.rafsan.picsumphotoapp.data.model.ImageListItem
+import com.rafsan.picsumphotoapp.di.CoroutinesDispatcherProvider
 import com.rafsan.picsumphotoapp.ext.saveToInternalStorage
 import com.rafsan.picsumphotoapp.ext.toBitmap
-import com.rafsan.picsumphotoapp.utils.CoroutinesDispatcherProvider
 import com.rafsan.picsumphotoapp.utils.NetworkHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
